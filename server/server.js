@@ -45,10 +45,22 @@ const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Database Connection
-mongoose
-  .connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/banking_crm')
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch((err) => console.error('❌ MongoDB connection error:', err));
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/banking_crm');
+    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+  } catch (err) {
+    console.error('❌ MongoDB Connection Error!');
+    console.error(`Message: ${err.message}`);
+    console.error(`Code: ${err.code}`);
+    // Do not log the full URI for security, but check if it's defined
+    if (!process.env.MONGODB_URI) {
+      console.error('Warning: MONGODB_URI is not defined in environment variables!');
+    }
+  }
+};
+
+connectDB();
 
 // Routes (to be added)
 app.get('/', (req, res) => {

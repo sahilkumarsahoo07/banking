@@ -12,7 +12,8 @@ import {
   CheckCircle2,
   Briefcase,
   TrendingUp,
-  FileText
+  FileText,
+  Archive
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -184,7 +185,7 @@ const AddCustomer = () => {
            </div>
 
            <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white">
-              <FileBox size={32} className="text-primary-500 mb-6" />
+              <Archive size={32} className="text-primary-500 mb-6" />
               <h3 className="text-lg font-bold mb-4 tracking-tight">Need Support?</h3>
               <p className="text-slate-400 text-xs leading-relaxed mb-6">
                  If you encounter issues with the business structures, contact the central underwriting team.

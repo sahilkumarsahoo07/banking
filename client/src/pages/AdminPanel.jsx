@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import useAuthStore from '../store/useAuthStore';
+import { motion } from 'framer-motion';
 import {
   Users,
   UserCheck,

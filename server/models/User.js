@@ -32,6 +32,15 @@ const bcrypt = require('bcryptjs');
  *           description: Access status for sales_rep and manager (admin approved)
  */
 
+const DeviceSchema = new mongoose.Schema({
+  fingerprint: { type: String, required: true },
+  deviceName: { type: String, default: 'Unknown Device' },
+  status: { type: String, enum: ['approved', 'pending', 'revoked'], default: 'approved' },
+  isPrimary: { type: Boolean, default: false },
+  lastUsed: { type: Date, default: Date.now },
+  registeredAt: { type: Date, default: Date.now },
+});
+
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
@@ -45,10 +54,12 @@ const UserSchema = new mongoose.Schema({
     type: String,
     enum: ['pending', 'approved', 'rejected'],
     default: function () {
-      // Customers are automatically approved, staff must be approved by admin
       return this.role === 'customer' || this.role === 'admin' ? 'approved' : 'pending';
     },
   },
+  devices: [DeviceSchema],
+  maxDevices: { type: Number, default: 2 },
+  subscriptionTier: { type: String, enum: ['free', 'pro', 'enterprise'], default: 'free' },
   createdAt: { type: Date, default: Date.now },
 });
 

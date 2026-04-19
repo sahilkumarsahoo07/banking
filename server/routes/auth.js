@@ -92,7 +92,7 @@ router.post('/register', async (req, res) => {
  */
 router.post('/login', async (req, res) => {
   try {
-    const { email, password, remember } = req.body;
+    const { email, password, remember, fingerprint, deviceName } = req.body;
 
     if (!email || typeof email !== 'string' || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
@@ -108,9 +108,57 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Account is pending approval by administrator' });
     }
 
-    // Dynamic expiry: 7 days if 'remember' is true, else 24 hours
-    const expiresIn = remember ? '7d' : '24h';
+    // ─── Device Fingerprint Check ────────────────────────────────────────────
+    if (fingerprint) {
+      const existingDevice = user.devices.find(d => d.fingerprint === fingerprint);
 
+      if (existingDevice) {
+        // Known device — check if it's revoked
+        if (existingDevice.status === 'revoked') {
+          return res.status(403).json({ message: 'This device has been revoked. Contact your administrator.' });
+        }
+        if (existingDevice.status === 'pending') {
+          return res.status(403).json({
+            message: 'This device is awaiting admin approval.',
+            code: 'DEVICE_PENDING'
+          });
+        }
+        // Approved — update lastUsed
+        existingDevice.lastUsed = new Date();
+      } else {
+        // New device — check approved device count
+        const approvedDevices = user.devices.filter(d => d.status === 'approved');
+
+        if (approvedDevices.length >= user.maxDevices) {
+          // Limit reached → register as pending, block login
+          user.devices.push({
+            fingerprint,
+            deviceName: deviceName || 'Unknown Device',
+            status: 'pending',
+            isPrimary: false,
+          });
+          await user.save();
+          return res.status(403).json({
+            message: `Device limit reached (${user.maxDevices} devices). A request has been sent to your administrator for approval.`,
+            code: 'DEVICE_LIMIT_REACHED'
+          });
+        }
+
+        // Under limit — auto-register as approved
+        const isPrimary = user.devices.length === 0;
+        user.devices.push({
+          fingerprint,
+          deviceName: deviceName || 'Unknown Device',
+          status: 'approved',
+          isPrimary,
+        });
+      }
+
+      await user.save();
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
+    const expiresIn = remember ? '7d' : '24h';
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET || 'your_super_secret_jwt_key',
@@ -127,4 +175,72 @@ router.post('/login', async (req, res) => {
   }
 });
 
-module.exports = router;
+// ─── Device Management Routes (Admin) ───────────────────────────────────────
+
+// GET all users with their devices (admin only)
+router.get('/devices', async (req, res) => {
+  try {
+    const users = await User.find({}, 'name email devices maxDevices subscriptionTier');
+    const deviceList = users.map(u => ({
+      userId: u._id,
+      userName: u.name,
+      userEmail: u.email,
+      maxDevices: u.maxDevices,
+      subscriptionTier: u.subscriptionTier,
+      devices: u.devices,
+    }));
+    res.json(deviceList);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// PATCH approve a pending device
+router.patch('/devices/:userId/:deviceId/approve', async (req, res) => {
+  try {
+    const { userId, deviceId } = req.params;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const device = user.devices.id(deviceId);
+    if (!device) return res.status(404).json({ message: 'Device not found' });
+
+    device.status = 'approved';
+    await user.save();
+    res.json({ message: 'Device approved successfully', device });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// DELETE / revoke a device
+router.delete('/devices/:userId/:deviceId', async (req, res) => {
+  try {
+    const { userId, deviceId } = req.params;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.devices = user.devices.filter(d => d._id.toString() !== deviceId);
+    await user.save();
+    res.json({ message: 'Device removed successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// PATCH update user maxDevices (subscription upgrade)
+router.patch('/users/:userId/subscription', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { maxDevices, subscriptionTier } = req.body;
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { maxDevices, subscriptionTier },
+      { new: true }
+    );
+    res.json({ message: 'Subscription updated', user });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+

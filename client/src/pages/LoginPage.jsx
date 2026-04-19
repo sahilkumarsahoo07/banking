@@ -10,21 +10,27 @@ import {
   Layers,
   Zap,
   LockKeyhole,
-  CheckCircle2
+  CheckCircle2,
+  Smartphone,
+  Clock
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [rememberMe, setRememberMe] = useState(false);
+  const [deviceError, setDeviceError] = useState(null);
   const { login, loading, error } = useAuthStore();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await login(formData.email, formData.password, rememberMe);
-    if (success) {
+    setDeviceError(null);
+    const result = await login(formData.email, formData.password, rememberMe);
+    if (result.success) {
       navigate('/dashboard');
+    } else if (result.code === 'DEVICE_LIMIT_REACHED' || result.code === 'DEVICE_PENDING') {
+      setDeviceError({ message: result.message, code: result.code });
     }
   };
 
@@ -94,15 +100,41 @@ const LoginPage = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <motion.div 
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-sm font-bold rounded-2xl"
-              >
-                {error}
-              </motion.div>
-            )}
+            <AnimatePresence>
+              {deviceError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className={`p-4 rounded-2xl border flex items-start gap-3 ${
+                    deviceError.code === 'DEVICE_LIMIT_REACHED'
+                      ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-400'
+                      : 'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400'
+                  }`}
+                >
+                  {deviceError.code === 'DEVICE_LIMIT_REACHED'
+                    ? <Smartphone size={20} className="shrink-0 mt-0.5" />
+                    : <Clock size={20} className="shrink-0 mt-0.5" />
+                  }
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-widest mb-1">
+                      {deviceError.code === 'DEVICE_LIMIT_REACHED' ? 'Device Limit Reached' : 'Awaiting Approval'}
+                    </p>
+                    <p className="text-xs font-medium">{deviceError.message}</p>
+                  </div>
+                </motion.div>
+              )}
+              {error && !deviceError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-sm font-bold rounded-2xl"
+                >
+                  {error}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <div className="space-y-2">
               <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Email Address</label>
@@ -119,6 +151,21 @@ const LoginPage = () => {
               </div>
             </div>
 
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Security Password</label>
+              <div className="relative group">
+                <LockKeyhole className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={20} />
+                <input 
+                  type="password" 
+                  required
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 pl-12 pr-4 py-4 rounded-3xl outline-none focus:ring-2 focus:ring-primary-500 transition-all dark:text-white"
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                />
+              </div>
+            </div>
+
             <div className="flex items-center justify-between">
                <label className="group flex items-center gap-3 cursor-pointer">
                   <div className="relative">
@@ -128,8 +175,8 @@ const LoginPage = () => {
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
                     />
-                    <div className="w-6 h-6 rounded-lg border-2 border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 transition-all peer-checked:bg-primary-500 peer-checked:border-primary-500 flex items-center justify-center">
-                       <CheckCircle2 size={14} className="text-white scale-0 peer-checked:scale-100 transition-transform" strokeWidth={3} />
+                    <div className="w-6 h-6 rounded-lg border-2 border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 transition-all peer-checked:bg-primary-500 peer-checked:border-primary-500 flex items-center justify-center peer-checked:[&_svg]:opacity-100">
+                       <CheckCircle2 size={14} className="text-white opacity-0 transition-opacity" strokeWidth={3} />
                     </div>
                   </div>
                   <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest group-hover:text-primary-500 transition-colors">Keep me signed in</span>

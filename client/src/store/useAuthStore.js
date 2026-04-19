@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import api from '../utils/api';
+import { getDeviceFingerprint, getDeviceName } from '../utils/fingerprint';
 
 const useAuthStore = create((set) => ({
   user: JSON.parse(localStorage.getItem('user')) || null,
@@ -10,7 +11,12 @@ const useAuthStore = create((set) => ({
   login: async (email, password, remember = false) => {
     set({ loading: true, error: null });
     try {
-      const response = await api.post('/api/auth/login', { email, password, remember });
+      const fingerprint = getDeviceFingerprint();
+      const deviceName = getDeviceName();
+
+      const response = await api.post('/api/auth/login', {
+        email, password, remember, fingerprint, deviceName
+      });
       const { user, token } = response.data;
       
       localStorage.setItem('user', JSON.stringify(user));
@@ -20,8 +26,9 @@ const useAuthStore = create((set) => ({
       return { success: true };
     } catch (err) {
       const message = err.response?.data?.message || 'Login failed';
+      const code = err.response?.data?.code || null;
       set({ error: message, loading: false });
-      return { success: false, message };
+      return { success: false, message, code };
     }
   },
 

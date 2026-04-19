@@ -92,7 +92,7 @@ router.post('/register', async (req, res) => {
  */
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, remember } = req.body;
 
     if (!email || typeof email !== 'string' || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
@@ -108,14 +108,18 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Account is pending approval by administrator' });
     }
 
+    // Dynamic expiry: 7 days if 'remember' is true, else 24 hours
+    const expiresIn = remember ? '7d' : '24h';
+
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET || 'your_super_secret_jwt_key',
-      { expiresIn: '1d' }
+      { expiresIn }
     );
 
     res.json({
       token,
+      expiresIn,
       user: { id: user._id, name: user.name, email: user.email, role: user.role }
     });
   } catch (err) {

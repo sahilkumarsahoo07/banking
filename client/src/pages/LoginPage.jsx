@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
 import { 
@@ -10,32 +9,22 @@ import {
   ShieldCheck,
   Layers,
   Zap,
-  LockKeyhole
+  LockKeyhole,
+  CheckCircle2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const { login } = useAuthStore();
+  const [rememberMe, setRememberMe] = useState(false);
+  const { login, loading, error } = useAuthStore();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-    try {
-      const result = await login(formData.email, formData.password);
-      if (result.success) {
-        navigate('/dashboard');
-      } else {
-        setError(result.message);
-      }
-      setLoading(false);
-    } catch (err) {
-      setError('An unexpected error occurred');
-      setLoading(false);
+    const success = await login(formData.email, formData.password, rememberMe);
+    if (success) {
+      navigate('/dashboard');
     }
   };
 
@@ -130,28 +119,28 @@ const LoginPage = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex justify-between items-center pr-2">
-                <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Security Password</label>
-                <Link to="#" className="text-xs font-bold text-primary-600 hover:underline">Lost access?</Link>
-              </div>
-              <div className="relative group">
-                <LockKeyhole className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={20} />
-                <input 
-                  type="password"
-                  required
-                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 pl-12 pr-4 py-4 rounded-3xl outline-none focus:ring-2 focus:ring-primary-500 transition-all dark:text-white"
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                />
-              </div>
+            <div className="flex items-center justify-between">
+               <label className="group flex items-center gap-3 cursor-pointer">
+                  <div className="relative">
+                    <input 
+                      type="checkbox" 
+                      className="peer sr-only"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                    />
+                    <div className="w-6 h-6 rounded-lg border-2 border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 transition-all peer-checked:bg-primary-500 peer-checked:border-primary-500 flex items-center justify-center">
+                       <CheckCircle2 size={14} className="text-white scale-0 peer-checked:scale-100 transition-transform" strokeWidth={3} />
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest group-hover:text-primary-500 transition-colors">Keep me signed in</span>
+               </label>
+               <Link to="#" className="text-[10px] font-black text-primary-600 hover:text-primary-700 uppercase tracking-widest transition-colors">Lost password?</Link>
             </div>
 
             <button 
               type="submit"
               disabled={loading}
-              className="w-full bg-primary-600 text-white font-black py-5 rounded-3xl flex items-center justify-center gap-3 hover:bg-primary-700 transition-all shadow-2xl shadow-primary-500/20 active:scale-[0.98] disabled:opacity-50"
+              className="w-full bg-primary-600 text-white font-black py-5 rounded-3xl flex items-center justify-center gap-3 hover:bg-primary-700 transition-all shadow-2xl shadow-primary-500/20 active:scale-[0.98] disabled:opacity-50 uppercase tracking-widest text-xs"
             >
               {loading ? <Loader2 className="animate-spin" /> : <><ShieldCheck size={24} /> Authenticate Access</>}
             </button>

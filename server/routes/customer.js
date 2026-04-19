@@ -29,14 +29,17 @@ const auth = require('../middleware/auth');
  *         description: Lead created successfully
  */
 const { calculateScore } = require('../utils/scoringEngine');
+const User = require('../models/User');
 
 router.post('/', auth(['sales_rep', 'manager', 'admin']), async (req, res) => {
   try {
     const score = calculateScore(req.body);
+    const user = await User.findById(req.user.id);
     const customer = new Customer({
       ...req.body,
       score,
-      assignedTo: req.user.id
+      assignedTo: req.user.id,
+      orgId: user?.orgId || null
     });
     await customer.save();
     res.status(201).json(customer);
@@ -57,13 +60,19 @@ router.post('/', auth(['sales_rep', 'manager', 'admin']), async (req, res) => {
  *       200:
  *         description: List of leads
  */
-router.get('/', auth(['sales_rep', 'manager', 'admin']), async (req, res) => {
+router.get('/', auth(['sales_rep', 'manager', 'admin', 'super_admin']), async (req, res) => {
   try {
     let query = {};
     
-    // Sales Reps only see their own leads
-    if (req.user.role === 'sales_rep') {
-      query = { assignedTo: req.user.id };
+    // Super Admin & Admin see everything across all orgs
+    if (req.user.role === 'super_admin' || req.user.role === 'admin') {
+      query = {};
+    } else {
+      // Scope all other roles to their org
+      const user = await User.findById(req.user.id);
+      if (user?.orgId) query.orgId = user.orgId;
+      // Sales Reps only see their own leads within the org
+      if (req.user.role === 'sales_rep') query.assignedTo = req.user.id;
     }
     
     // Sort by createdAt descending (Latest First)

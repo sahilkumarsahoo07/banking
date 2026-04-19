@@ -47,16 +47,17 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: {
     type: String,
-    enum: ['customer', 'sales_rep', 'manager', 'admin'],
+    enum: ['customer', 'sales_rep', 'manager', 'admin', 'super_admin'],
     default: 'customer',
   },
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],
     default: function () {
-      return this.role === 'customer' || this.role === 'admin' ? 'approved' : 'pending';
+      return ['customer', 'admin', 'super_admin'].includes(this.role) ? 'approved' : 'pending';
     },
   },
+  orgId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', default: null },
   devices: [DeviceSchema],
   maxDevices: { type: Number, default: 2 },
   subscriptionTier: { type: String, enum: ['free', 'pro', 'enterprise'], default: 'free' },

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import useAuthStore from './store/useAuthStore';
 import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
+import CreateOrgModal from './components/CreateOrgModal';
 
 // Pages
 import LoginPage from './pages/LoginPage';
@@ -15,16 +16,18 @@ import AddCustomer from './pages/AddCustomer';
 import AdminPanel from './pages/AdminPanel';
 
 const ProtectedRoute = ({ children }) => {
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
   if (!token) return <Navigate to="/login" />;
-  
+
+  // Manager must create org before accessing the app
+  const requiresOrgSetup = user?.role === 'manager' && !user?.orgId;
+
   return (
     <div className="flex bg-page-bg min-h-screen transition-colors duration-300 overflow-x-hidden">
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       
-      {/* Overlay for mobile sidebar */}
       {isSidebarOpen && (
         <div 
           className="fixed inset-0 bg-slate-950/20 backdrop-blur-sm z-40 lg:hidden"
@@ -38,6 +41,17 @@ const ProtectedRoute = ({ children }) => {
           {children}
         </main>
       </div>
+
+      {/* Org Setup Gate — blocks manager until org is created */}
+      <CreateOrgModal
+        isOpen={requiresOrgSetup}
+        onComplete={() => {
+          // Modal updates user store internally; this just closes it
+          useAuthStore.setState(s => ({
+            user: { ...s.user, orgId: s.user?.orgId || 'setup_done', requiresOrgSetup: false }
+          }));
+        }}
+      />
     </div>
   );
 };
@@ -94,7 +108,7 @@ function App() {
         <Route
           path="/admin"
           element={
-            <ProtectedRoute roles={['admin']}>
+            <ProtectedRoute roles={['admin', 'super_admin']}>
               <AdminPanel />
             </ProtectedRoute>
           }

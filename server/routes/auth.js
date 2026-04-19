@@ -43,20 +43,45 @@ const User = require('../models/User');
  *       400:
  *         description: User already exists
  */
+const Organization = require('../models/Organization');
+
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, orgCode } = req.body;
+
+    // Block super_admin from public registration
+    if (role === 'super_admin') {
+      return res.status(403).json({ message: 'This role cannot be registered publicly.' });
+    }
 
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ message: 'User already exists' });
 
-    user = new User({ name, email, password, role });
+    let orgId = null;
+
+    // Sales reps MUST provide a valid org code
+    if (role === 'sales_rep') {
+      if (!orgCode) return res.status(400).json({ message: 'Organization code is required for Sales Representatives.' });
+      const org = await Organization.findOne({ code: orgCode.toUpperCase() });
+      if (!org) return res.status(400).json({ message: 'Invalid organization code. Please check with your manager.' });
+      orgId = org._id;
+    }
+
+    user = new User({ name, email, password, role, orgId });
     await user.save();
 
+    // Add sales rep to org members
+    if (role === 'sales_rep' && orgId) {
+      await Organization.findByIdAndUpdate(orgId, { $addToSet: { members: user._id } });
+    }
+
     res.status(201).json({
-      message: role === 'customer' 
-        ? 'Registration successful' 
-        : 'Registration successful. Waiting for admin approval.',
+      message: role === 'customer'
+        ? 'Registration successful'
+        : role === 'manager'
+          ? 'Registration successful. Waiting for admin approval.'
+          : 'Registration successful. Waiting for admin approval.',
+      requiresOrgSetup: role === 'manager',
       user: { id: user._id, name: user.name, email: user.email, role: user.role, status: user.status }
     });
   } catch (err) {
@@ -126,32 +151,24 @@ router.post('/login', async (req, res) => {
         // Approved — update lastUsed
         existingDevice.lastUsed = new Date();
       } else {
-        // New device — check approved device count
-        const approvedDevices = user.devices.filter(d => d.status === 'approved');
+        // New device — Auto-approve ONLY the very first device
+        const isFirstDevice = user.devices.length === 0;
 
-        if (approvedDevices.length >= user.maxDevices) {
-          // Limit reached → register as pending, block login
-          user.devices.push({
-            fingerprint,
-            deviceName: deviceName || 'Unknown Device',
-            status: 'pending',
-            isPrimary: false,
-          });
-          await user.save();
-          return res.status(403).json({
-            message: `Device limit reached (${user.maxDevices} devices). A request has been sent to your administrator for approval.`,
-            code: 'DEVICE_LIMIT_REACHED'
-          });
-        }
-
-        // Under limit — auto-register as approved
-        const isPrimary = user.devices.length === 0;
         user.devices.push({
           fingerprint,
           deviceName: deviceName || 'Unknown Device',
-          status: 'approved',
-          isPrimary,
+          status: isFirstDevice ? 'approved' : 'pending',
+          isPrimary: isFirstDevice,
         });
+
+        await user.save();
+
+        if (!isFirstDevice) {
+          return res.status(403).json({
+            message: `New device detected. A request has been sent to your administrator for approval.`,
+            code: 'DEVICE_PENDING'
+          });
+        }
       }
 
       await user.save();
@@ -168,7 +185,14 @@ router.post('/login', async (req, res) => {
     res.json({
       token,
       expiresIn,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role }
+      user: { 
+        id: user._id, 
+        name: user.name, 
+        email: user.email, 
+        role: user.role,
+        orgId: user.orgId,
+        requiresOrgSetup: user.role === 'manager' && !user.orgId
+      }
     });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
@@ -236,7 +260,6 @@ router.patch('/users/:userId/subscription', async (req, res) => {
     const user = await User.findByIdAndUpdate(
       userId,
       { maxDevices, subscriptionTier },
-      { new: true }
     );
     res.json({ message: 'Subscription updated', user });
   } catch (err) {
@@ -244,3 +267,4 @@ router.patch('/users/:userId/subscription', async (req, res) => {
   }
 });
 
+module.exports = router;

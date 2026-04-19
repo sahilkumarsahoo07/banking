@@ -23,7 +23,7 @@ const auth = require('../middleware/auth');
  *       200:
  *         description: List of all users
  */
-router.get('/users', auth(['admin']), async (req, res) => {
+router.get('/users', auth(['admin', 'super_admin']), async (req, res) => {
   try {
     const users = await User.find().select('-password');
     res.json(users);
@@ -60,7 +60,7 @@ router.get('/users', auth(['admin']), async (req, res) => {
  *       200:
  *         description: User status updated
  */
-router.patch('/users/:id/approve', auth(['admin']), async (req, res) => {
+router.patch('/users/:id/approve', auth(['admin', 'super_admin']), async (req, res) => {
   try {
     const { status } = req.body;
     const user = await User.findById(req.params.id);
@@ -87,7 +87,7 @@ router.patch('/users/:id/approve', auth(['admin']), async (req, res) => {
  *       200:
  *         description: System KPIs
  */
-router.get('/stats', auth(['admin', 'manager']), async (req, res) => {
+router.get('/stats', auth(['admin', 'super_admin', 'manager']), async (req, res) => {
   try {
     const totalLeads = await Customer.countDocuments();
     const totalLogins = await Customer.countDocuments({ status: 'login_done' });

@@ -34,15 +34,21 @@ const hashString = (str) => {
 };
 
 export const getDeviceFingerprint = () => {
+  // Use a persisted UUID in localStorage as the primary strong identifier for this specific device/browser
+  let deviceUuid = localStorage.getItem('device_uuid');
+  if (!deviceUuid) {
+    // Generate a random UUID
+    deviceUuid = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    localStorage.setItem('device_uuid', deviceUuid);
+  }
+
+  // Combine UUID with stable browser properties (excluding unstable ones like screen geometry which shift on mobile rotation)
   const components = [
+    deviceUuid,
     navigator.userAgent,
     navigator.language,
-    screen.colorDepth,
-    screen.width + 'x' + screen.height,
-    new Date().getTimezoneOffset(),
     navigator.hardwareConcurrency || '',
-    navigator.deviceMemory || '',
-    getCanvasFingerprint(),
+    navigator.deviceMemory || ''
   ];
 
   return hashString(components.join('|||'));

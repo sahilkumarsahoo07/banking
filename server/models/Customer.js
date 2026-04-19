@@ -59,6 +59,11 @@ const CustomerSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  orgId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Organization',
+    default: null
+  },
   notes: { type: String },
   documents: [{
     title: String,

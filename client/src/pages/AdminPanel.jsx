@@ -26,8 +26,11 @@ const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('users');
   const { token } = useAuthStore();
 
+  const [errorMsg, setErrorMsg] = useState(null);
+
   const fetchData = async () => {
     try {
+      setErrorMsg(null);
       const [usersRes, statsRes, devicesRes] = await Promise.all([
         api.get('/api/admin/users'),
         api.get('/api/admin/stats'),
@@ -39,9 +42,12 @@ const AdminPanel = () => {
       setLoading(false);
     } catch (err) {
       console.error('Error fetching admin data:', err);
+      // Surface error so we know what is actually failing
+      setErrorMsg(err.response?.data?.message || err.message || 'Unknown network error');
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchData();
@@ -103,6 +109,12 @@ const AdminPanel = () => {
         <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">System Intelligence</h1>
         <p className="text-sm text-slate-500 font-medium mt-2">Manage enterprise accounts, audit approvals, and monitor ecosystem health.</p>
       </div>
+
+      {errorMsg && (
+        <div className="px-6 py-4 bg-red-500/10 border border-red-500 text-red-500 rounded-2xl font-black text-center mx-2">
+          CRITICAL ERROR: {errorMsg}
+        </div>
+      )}
 
       {stats && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -277,9 +289,11 @@ const AdminPanel = () => {
                   </div>
                   <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
                     {d.status === 'pending' && (
-                      <button onClick={() => handleApproveDevice(u.userId, d._id)} className="p-2 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-all shadow-lg shadow-green-500/20 active:scale-90" title="Approve"><UserCheck size={16} /></button>
+                      <>
+                        <button onClick={() => handleApproveDevice(u.userId, d._id)} className="p-2 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-all shadow-lg shadow-green-500/20 active:scale-90" title="Approve"><UserCheck size={16} /></button>
+                        <button onClick={() => handleRevokeDevice(u.userId, d._id)} className="p-2 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all active:scale-90" title="Reject Device"><Trash2 size={16} /></button>
+                      </>
                     )}
-                    <button onClick={() => handleRevokeDevice(u.userId, d._id)} className="p-2 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all active:scale-90" title="Revoke Device"><Trash2 size={16} /></button>
                   </div>
                 </div>
               ))}

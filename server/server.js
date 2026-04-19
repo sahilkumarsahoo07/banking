@@ -71,10 +71,12 @@ app.get('/', (req, res) => {
 const authRoutes = require('./routes/auth');
 const customerRoutes = require('./routes/customer');
 const adminRoutes = require('./routes/admin');
+const orgRoutes = require('./routes/org');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/org', orgRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

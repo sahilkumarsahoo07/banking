@@ -10,23 +10,49 @@ import {
   Briefcase,
   Layers,
   ArrowRight,
-  ShieldPlus
+  ShieldPlus,
+  Hash,
+  CheckCircle2,
+  Building2
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    role: 'customer'
+    role: 'customer',
+    orgCode: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [orgInfo, setOrgInfo] = useState(null); // validated org data
+  const [orgValidating, setOrgValidating] = useState(false);
   const navigate = useNavigate();
+
+  const handleOrgCodeChange = async (code) => {
+    setFormData(prev => ({ ...prev, orgCode: code }));
+    setOrgInfo(null);
+    if (code.length >= 6) {
+      setOrgValidating(true);
+      try {
+        const res = await api.get(`/api/org/validate/${code}`);
+        setOrgInfo(res.data.org);
+      } catch {
+        setOrgInfo(null);
+      } finally {
+        setOrgValidating(false);
+      }
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.role === 'sales_rep' && !orgInfo) {
+      setError('Please enter a valid organization code.');
+      return;
+    }
     setLoading(true);
     setError('');
     try {
@@ -180,6 +206,51 @@ const RegisterPage = () => {
                     />
                   </div>
                </div>
+
+               {/* Org Code — only for Sales Reps */}
+               <AnimatePresence>
+                 {formData.role === 'sales_rep' && (
+                   <motion.div
+                     initial={{ opacity: 0, height: 0 }}
+                     animate={{ opacity: 1, height: 'auto' }}
+                     exit={{ opacity: 0, height: 0 }}
+                     className="space-y-2 overflow-hidden"
+                   >
+                     <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-2">
+                       Organization Code <span className="text-red-500">*</span>
+                     </label>
+                     <div className="relative group">
+                       <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                       <input
+                         type="text"
+                         required
+                         maxLength={6}
+                         className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 pl-12 pr-12 py-3.5 rounded-3xl outline-none focus:ring-2 focus:ring-primary-500 transition-all dark:text-white uppercase tracking-widest font-black"
+                         placeholder="e.g. HPN012"
+                         value={formData.orgCode}
+                         onChange={(e) => handleOrgCodeChange(e.target.value)}
+                       />
+                       <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                         {orgValidating && <Loader2 size={16} className="animate-spin text-slate-400" />}
+                         {orgInfo && !orgValidating && <CheckCircle2 size={16} className="text-green-500" />}
+                       </div>
+                     </div>
+                     {/* Org preview */}
+                     {orgInfo && (
+                       <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-2xl">
+                         <Building2 size={18} className="text-green-600 shrink-0" />
+                         <div>
+                           <p className="text-xs font-black text-green-700 dark:text-green-400">{orgInfo.name}</p>
+                           <p className="text-[10px] text-green-600/70">Manager: {orgInfo.manager}</p>
+                         </div>
+                       </div>
+                     )}
+                     {formData.orgCode.length >= 6 && !orgInfo && !orgValidating && (
+                       <p className="text-xs text-red-500 font-bold ml-2">Invalid org code. Check with your manager.</p>
+                     )}
+                   </motion.div>
+                 )}
+               </AnimatePresence>
             </div>
 
             <button 

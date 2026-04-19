@@ -28,10 +28,6 @@
   --color-card-border: #1e293b; /* slate-800 */
   --color-sidebar-bg: #020617; /* slate-950 */
   --color-page-bg: #020617; /* slate-950 */
-  --color-slate-900: #f8fafc;
-  --color-slate-500: #94a3b8;
-  --color-slate-400: #64748b;
-  --color-slate-800: #f1f5f9;
 }
 
 :root {
@@ -58,17 +54,24 @@ body {
 
 /* Deep Glassmorphism Design System */
 @utility glass {
-  @apply bg-white/40 dark:bg-slate-950/40 backdrop-blur-2xl transition-all duration-500;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  background-color: rgba(255, 255, 255, 0.5);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+  @apply transition-all duration-500;
 }
 
 .dark .glass {
+  background-color: rgba(15, 23, 42, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.05);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
 }
 
 @utility glass-pill {
-  @apply glass rounded-full px-4 py-1.5 border-white/30 dark:border-white/10;
+  @apply glass rounded-full px-4 py-1.5;
+  border-width: 1px;
 }
 
 /* Surface Glowing Accents */

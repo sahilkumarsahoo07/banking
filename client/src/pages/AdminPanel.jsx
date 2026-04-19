@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import useAuthStore from '../store/useAuthStore';
-import { 
-  Users, 
-  UserCheck, 
-  UserX, 
-  Shield, 
+import {
+  Users,
+  UserCheck,
+  UserX,
+  Shield,
   BarChart4,
   CheckCircle2,
-  XCircle
+  XCircle,
+  Loader2
 } from 'lucide-react';
 
 const AdminPanel = () => {
@@ -62,28 +63,28 @@ const AdminPanel = () => {
       {stats && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="glass p-6 rounded-[2rem] border border-white/40 dark:border-white/10 shadow-xl shadow-slate-900/5 dark:shadow-black/20 relative overflow-hidden">
-             <div className="absolute -right-6 -top-6 w-20 h-20 bg-primary-500/5 rounded-full blur-2xl"></div>
-             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Leads</p>
-             <h3 className="text-3xl font-black text-slate-900 dark:text-white">{stats.totalLeads}</h3>
+            <div className="absolute -right-6 -top-6 w-20 h-20 bg-primary-500/5 rounded-full blur-2xl"></div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Leads</p>
+            <h3 className="text-3xl font-black text-slate-900 dark:text-white">{stats.totalLeads}</h3>
           </div>
           <div className="glass p-6 rounded-[2rem] border border-white/40 dark:border-white/10 shadow-xl shadow-slate-900/5 dark:shadow-black/20 relative overflow-hidden">
-             <div className="absolute -right-6 -top-6 w-20 h-20 bg-indigo-500/5 rounded-full blur-2xl"></div>
-             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Logins</p>
-             <h3 className="text-3xl font-black text-slate-900 dark:text-white">{stats.totalLogins}</h3>
+            <div className="absolute -right-6 -top-6 w-20 h-20 bg-indigo-500/5 rounded-full blur-2xl"></div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Logins</p>
+            <h3 className="text-3xl font-black text-slate-900 dark:text-white">{stats.totalLogins}</h3>
           </div>
           <div className="glass p-6 rounded-[2rem] border border-white/40 dark:border-white/10 shadow-xl shadow-slate-900/5 dark:shadow-black/20 relative overflow-hidden">
-             <div className="absolute -right-6 -top-6 w-20 h-20 bg-green-500/5 rounded-full blur-2xl"></div>
-             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Disbursements</p>
-             <h3 className="text-3xl font-black text-slate-900 dark:text-white">{stats.totalDisbursements}</h3>
+            <div className="absolute -right-6 -top-6 w-20 h-20 bg-green-500/5 rounded-full blur-2xl"></div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Disbursements</p>
+            <h3 className="text-3xl font-black text-slate-900 dark:text-white">{stats.totalDisbursements}</h3>
           </div>
-          <motion.div 
-            animate={{ scale: [1, 1.02, 1] }} 
+          <motion.div
+            animate={{ scale: [1, 1.02, 1] }}
             transition={{ repeat: Infinity, duration: 4 }}
             className="glass p-6 rounded-[2rem] border-primary-500/30 ring-2 ring-primary-500/10 shadow-xl shadow-primary-500/5 relative overflow-hidden"
           >
-             <div className="absolute -right-6 -top-6 w-20 h-20 bg-primary-500/10 rounded-full blur-2xl"></div>
-             <p className="text-[10px] font-black text-primary-500 uppercase tracking-widest mb-2">Pending Clearances</p>
-             <h3 className="text-3xl font-black text-primary-600 dark:text-primary-400">{stats.pendingApprovals}</h3>
+            <div className="absolute -right-6 -top-6 w-20 h-20 bg-primary-500/10 rounded-full blur-2xl"></div>
+            <p className="text-[10px] font-black text-primary-500 uppercase tracking-widest mb-2">Pending Clearances</p>
+            <h3 className="text-3xl font-black text-primary-600 dark:text-primary-400">{stats.pendingApprovals}</h3>
           </motion.div>
         </div>
       )}
@@ -95,8 +96,8 @@ const AdminPanel = () => {
               <Users size={24} strokeWidth={2.5} />
             </div>
             <div>
-               <h2 className="text-xl font-black text-slate-900 dark:text-white">Identity Management</h2>
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Global access hierarchy</p>
+              <h2 className="text-xl font-black text-slate-900 dark:text-white">Identity Management</h2>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Global access hierarchy</p>
             </div>
           </div>
         </div>
@@ -123,24 +124,23 @@ const AdminPanel = () => {
                     </span>
                   </td>
                   <td className="px-8 py-6">
-                    <span className={`text-[10px] font-black px-3 py-1 rounded-xl uppercase tracking-widest ${
-                      u.status === 'approved' ? 'bg-green-500/10 text-green-600' : 
-                      u.status === 'pending' ? 'bg-amber-500/10 text-amber-600' : 'bg-red-500/10 text-red-600'
-                    }`}>
+                    <span className={`text-[10px] font-black px-3 py-1 rounded-xl uppercase tracking-widest ${u.status === 'approved' ? 'bg-green-500/10 text-green-600' :
+                        u.status === 'pending' ? 'bg-amber-500/10 text-amber-600' : 'bg-red-500/10 text-red-600'
+                      }`}>
                       {u.status}
                     </span>
                   </td>
                   <td className="px-8 py-6 text-right">
                     {u.status === 'pending' && (
                       <div className="flex items-center justify-end gap-3">
-                        <button 
+                        <button
                           onClick={() => handleApproval(u._id, 'approved')}
                           className="p-3 bg-green-500 text-white rounded-2xl hover:bg-green-600 transition-all shadow-lg shadow-green-500/20 active:scale-90"
                           title="Grant Access"
                         >
                           <UserCheck size={18} strokeWidth={2.5} />
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleApproval(u._id, 'rejected')}
                           className="p-3 bg-red-500 text-white rounded-2xl hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 active:scale-90"
                           title="Deny Access"
@@ -150,7 +150,7 @@ const AdminPanel = () => {
                       </div>
                     )}
                     {u.status === 'approved' && u.role !== 'admin' && (
-                      <button 
+                      <button
                         onClick={() => handleApproval(u._id, 'rejected')}
                         className="text-[10px] font-black text-red-500 hover:text-red-600 uppercase tracking-widest transition-colors"
                       >

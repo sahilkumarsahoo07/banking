@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import useAuthStore from '../store/useAuthStore';
 import { 
   Users, 
@@ -23,9 +23,7 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         if (user?.role === 'admin' || user?.role === 'manager') {
-          const statsRes = await axios.get('http://localhost:5000/api/admin/stats', {
-            headers: { Authorization: `Bearer ${token}` }
-          });
+          const statsRes = await api.get('/api/admin/stats');
           const data = statsRes.data;
           setStats([
             { name: 'Active Leads', value: data.totalLeads, icon: Zap, color: 'text-blue-500', bg: 'bg-blue-500/10', trend: '+12%' },
@@ -42,9 +40,7 @@ const Dashboard = () => {
           ]);
         }
 
-        const customersRes = await axios.get('http://localhost:5000/api/customers', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const customersRes = await api.get('/api/customers');
         setRecentActivities(customersRes.data.slice(0, 5));
         setLoading(false);
       } catch (err) {

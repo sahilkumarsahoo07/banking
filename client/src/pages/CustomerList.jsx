@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import useAuthStore from '../store/useAuthStore';
 import { 
   Search, 
@@ -21,9 +21,7 @@ const CustomerList = () => {
 
   const fetchCustomers = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/customers', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get('/api/customers');
       setCustomers(res.data);
       setLoading(false);
     } catch (err) {
@@ -38,10 +36,7 @@ const CustomerList = () => {
 
   const updateStatus = async (id, newStatus) => {
     try {
-      await axios.patch(`http://localhost:5000/api/customers/${id}/status`, 
-        { status: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.patch(`/api/customers/${id}/status`, { status: newStatus });
       fetchCustomers();
     } catch (err) {
       console.error('Error updating status:', err);

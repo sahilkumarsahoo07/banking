@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import useAuthStore from '../store/useAuthStore';
 import { 
   FileText, 
@@ -27,9 +27,7 @@ const DocumentHub = () => {
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/customers', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await api.get('/api/customers');
         setCustomers(res.data);
         if (res.data.length > 0) setSelectedCust(res.data[0]);
         setLoading(false);

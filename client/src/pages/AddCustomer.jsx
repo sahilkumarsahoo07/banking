@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
 import { 
@@ -33,9 +33,7 @@ const AddCustomer = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/customers', formData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.post('/api/customers', formData);
       setSuccess(true);
       setTimeout(() => navigate('/customers'), 2000);
     } catch (err) {

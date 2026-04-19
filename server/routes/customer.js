@@ -66,8 +66,61 @@ router.get('/', auth(['sales_rep', 'manager', 'admin']), async (req, res) => {
       query = { assignedTo: req.user.id };
     }
     
-    const customers = await Customer.find(query).populate('assignedTo', 'name email');
+    // Sort by createdAt descending (Latest First)
+    const customers = await Customer.find(query)
+      .populate('assignedTo', 'name email')
+      .sort({ createdAt: -1 });
+      
     res.json(customers);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/customers/{id}:
+ *   put:
+ *     summary: Update a lead
+ *     tags: [Customers]
+ */
+router.put('/:id', auth(['sales_rep', 'manager', 'admin']), async (req, res) => {
+  try {
+    const customer = await Customer.findById(req.params.id);
+    if (!customer) return res.status(404).json({ message: 'Lead not found' });
+
+    // Authorization: Managers/Admins can update anything. Sales Reps only their own.
+    if (req.user.role === 'sales_rep' && customer.assignedTo.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Access Denied: You do not own this lead' });
+    }
+
+    // Recalculate score if financial data changes
+    const score = calculateScore({ ...customer.toObject(), ...req.body });
+    
+    const updatedCustomer = await Customer.findByIdAndUpdate(
+      req.params.id,
+      { ...req.body, score, updatedAt: Date.now() },
+      { new: true }
+    );
+    
+    res.json(updatedCustomer);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/customers/{id}:
+ *   delete:
+ *     summary: Delete a lead
+ *     tags: [Customers]
+ */
+router.delete('/:id', auth(['manager', 'admin']), async (req, res) => {
+  try {
+    const customer = await Customer.findByIdAndDelete(req.params.id);
+    if (!customer) return res.status(404).json({ message: 'Lead not found' });
+    res.json({ message: 'Lead deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
@@ -79,27 +132,6 @@ router.get('/', auth(['sales_rep', 'manager', 'admin']), async (req, res) => {
  *   patch:
  *     summary: Update lead status
  *     tags: [Customers]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               status:
- *                 type: string
- *                 enum: [pending, login_done, follow_up, branch_visit, disbursement, padayatra]
- *     responses:
- *       200:
- *         description: Status updated
  */
 router.patch('/:id/status', auth(['sales_rep', 'manager', 'admin']), async (req, res) => {
   try {
@@ -108,7 +140,6 @@ router.patch('/:id/status', auth(['sales_rep', 'manager', 'admin']), async (req,
     
     if (!customer) return res.status(404).json({ message: 'Lead not found' });
     
-    // Sales Reps can only update their own leads
     if (req.user.role === 'sales_rep' && customer.assignedTo.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to update this lead' });
     }

@@ -7,7 +7,7 @@ const DashboardCharts = ({ role }) => {
   const isDark = theme === 'dark';
 
   const baseTextStyle = {
-    color: isDark ? '#64748b' : '#94a3b8',
+    color: isDark ? '#94a3b8' : '#64748b',
     fontFamily: 'Outfit, sans-serif',
     fontSize: 10,
     fontWeight: 'bold'

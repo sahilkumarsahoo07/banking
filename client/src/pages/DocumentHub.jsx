@@ -149,19 +149,19 @@ const DocumentHub = () => {
                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Acceptance Criteria</h4>
                 <div className="space-y-3">
                   {sampleDoc.checklist.map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                      <div className="w-5 h-5 bg-green-500 text-white rounded-full flex items-center justify-center">
-                        <Check size={12} />
+                    <div key={i} className="flex items-center gap-3 p-3 bg-slate-900/5 dark:bg-white/5 rounded-2xl border border-slate-200/50 dark:border-white/5">
+                      <div className="w-5 h-5 bg-green-500 text-white rounded-lg flex items-center justify-center shadow-lg shadow-green-500/20">
+                        <Check size={12} strokeWidth={4} />
                       </div>
-                      <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{item}</span>
+                      <span className="text-xs font-black text-slate-700 dark:text-slate-200">{item}</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                <div className="mt-8 pt-6 border-t border-slate-200/50 dark:border-white/10 flex justify-end">
                   <button 
                     onClick={() => setSampleDoc(null)}
-                    className="px-6 py-3 bg-slate-900 text-white text-[10px] font-black rounded-xl uppercase tracking-widest hover:bg-slate-800 transition-all"
+                    className="px-8 py-3.5 bg-primary-600 text-white text-[10px] font-black rounded-xl uppercase tracking-widest hover:bg-primary-700 transition-all shadow-xl shadow-primary-500/20 active:scale-95"
                   >
                     Understood
                   </button>
@@ -172,22 +172,22 @@ const DocumentHub = () => {
         )}
       </AnimatePresence>
 
-      <div>
-        <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Document Hub</h1>
-        <p className="text-[10px] font-black text-slate-500 underline decoration-primary-500/50 underline-offset-4 uppercase tracking-[0.2em] mt-1">Verification & Compliance Management</p>
+      <div className="pt-20">
+        <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Compliance Center</h1>
+        <p className="text-[10px] font-black text-slate-500 underline decoration-primary-500 underline-offset-8 uppercase tracking-[0.25em] mt-3">Identity & Verification Ecosystem</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Customer List Sidebar */}
         <div className="lg:col-span-1 space-y-6">
-           <div className="glass p-6 rounded-[2.5rem] h-[650px] flex flex-col relative overflow-hidden">
-              <div className="absolute -right-10 -top-10 w-32 h-32 bg-primary-500/5 rounded-full blur-3xl"></div>
+           <div className="glass p-6 rounded-[2.5rem] h-[700px] flex flex-col relative overflow-hidden border border-white/40 dark:border-white/10 shadow-2xl shadow-slate-900/5 dark:shadow-black/20">
+              <div className="absolute -right-10 -top-10 w-32 h-32 bg-primary-500/10 rounded-full blur-3xl"></div>
               
               <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2 relative z-10">
                 <div className="icon-glow-primary w-6 h-6 rounded-lg flex items-center justify-center">
                   <Briefcase size={12} />
                 </div>
-                Portfolios
+                Active Portfolios
               </h3>
               
               <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar relative z-10">
@@ -197,19 +197,19 @@ const DocumentHub = () => {
                       onClick={() => setSelectedCust(c)}
                       className={`w-full text-left p-4 rounded-2xl transition-all border group relative overflow-hidden ${
                         selectedCust?._id === c._id 
-                          ? 'glass bg-primary-600/10 border-primary-500/30' 
-                          : 'bg-transparent border-transparent hover:bg-white/5 dark:hover:bg-slate-900/50'
+                          ? 'bg-primary-600/10 border-primary-500/30 ring-1 ring-primary-500/20' 
+                          : 'bg-transparent border-transparent hover:bg-slate-900/5 dark:hover:bg-white/5'
                       }`}
                     >
                        <div className="relative z-10">
-                         <p className={`text-sm font-black transition-colors ${selectedCust?._id === c._id ? 'text-primary-600 dark:text-primary-400' : 'text-slate-700 dark:text-slate-300'}`}>
+                         <p className={`text-sm font-black transition-colors ${selectedCust?._id === c._id ? 'text-primary-600 dark:text-primary-400' : 'text-slate-800 dark:text-slate-300'}`}>
                            {c.name}
                          </p>
-                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1 opacity-70">{c.businessType.replace('_', ' ')}</p>
+                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1 opacity-70">{c.businessType.replace('_', ' ')}</p>
                        </div>
                        {selectedCust?._id === c._id && (
-                         <div className="absolute right-2 top-1/2 -translate-y-1/2 text-primary-500">
-                            <ChevronRight size={16} />
+                         <div className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-500">
+                            <ChevronRight size={16} strokeWidth={3} />
                          </div>
                        )}
                     </button>
@@ -227,19 +227,20 @@ const DocumentHub = () => {
                animate={{ opacity: 1, x: 0 }}
                className="space-y-8"
              >
-                <div className="glass p-8 rounded-[2.5rem] flex justify-between items-center relative overflow-hidden">
+                <div className="glass p-8 rounded-[2.5rem] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 relative overflow-hidden border border-white/40 dark:border-white/10 shadow-2xl shadow-slate-900/5 dark:shadow-black/20">
                    <div className="absolute -left-20 -top-20 w-64 h-64 bg-primary-500/5 rounded-full blur-[100px]"></div>
                    
                    <div className="flex items-center gap-6 relative z-10">
-                      <div className="w-16 h-16 icon-glow-primary rounded-[1.5rem] flex items-center justify-center shadow-2xl">
-                         <ShieldCheck size={32} />
+                      <div className="w-16 h-16 icon-glow-primary rounded-2xl flex items-center justify-center shadow-2xl">
+                         <ShieldCheck size={32} strokeWidth={2.5} />
                       </div>
                       <div>
                          <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">{selectedCust.name}</h2>
-                         <div className="flex gap-2 mt-1">
-                            <span className="text-[10px] font-black bg-slate-900 dark:bg-white dark:text-slate-900 text-white px-2 py-0.5 rounded-lg uppercase tracking-widest">{selectedCust.businessType.replace('_', ' ')}</span>
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                              <Clock size={10} /> Pending Verification
+                         <div className="flex gap-2 mt-2">
+                            <span className="text-[10px] font-black bg-slate-900 dark:bg-white dark:text-slate-900 text-white px-3 py-1 rounded-xl uppercase tracking-widest shadow-lg shadow-black/5">{selectedCust.businessType.replace('_', ' ')}</span>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1 bg-slate-100 dark:bg-white/5 px-3 py-1 rounded-xl transition-colors">
+                              <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></div>
+                              Verification Pending
                             </span>
                          </div>
                       </div>

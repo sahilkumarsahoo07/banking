@@ -69,16 +69,16 @@ const Dashboard = () => {
       variants={container}
       initial="hidden"
       animate="show"
-      className="space-y-8 min-h-screen p-1"
+      className="space-y-8 min-h-screen pt-20 pb-12"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 px-2">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Overview</h1>
-          <p className="text-sm text-slate-500 font-medium">Monitoring <span className="text-primary-600 dark:text-primary-400 font-bold">@{user?.name.split(' ')[0]}</span>'s performance.</p>
+          <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">Overview</h1>
+          <p className="text-sm text-slate-500 font-medium">Monitoring <span className="text-primary-600 dark:text-primary-400 font-bold">@{user?.name.split(' ')[0]}</span>'s performance analytics.</p>
         </div>
         <div className="flex gap-3">
-           <div className="px-4 py-2 glass-pill flex items-center gap-2 text-[10px] font-black text-slate-600 dark:text-slate-300">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_#22c55e]"></div>
+           <div className="px-5 py-2.5 glass-pill flex items-center gap-3 text-[11px] font-black text-slate-700 dark:text-slate-200 shadow-xl shadow-slate-900/5 dark:shadow-black/20 transition-transform hover:scale-105 active:scale-95 cursor-pointer">
+              <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_15px_#22c55e]"></div>
               Vitals: Optimal
            </div>
         </div>

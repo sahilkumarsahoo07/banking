@@ -93,7 +93,7 @@ const AddCustomer = () => {
                 <input 
                   type="text"
                   required
-                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 px-6 py-4 rounded-2xl focus:ring-2 focus:ring-primary-500 outline-none text-slate-900 dark:text-white font-bold transition-all"
+                  className="w-full bg-slate-900/5 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-6 py-4 rounded-2xl focus:ring-4 focus:ring-primary-500/10 outline-none text-slate-900 dark:text-white font-bold transition-all placeholder:text-slate-400"
                   placeholder="e.g. Acme Corporation Pvt Ltd"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -112,8 +112,8 @@ const AddCustomer = () => {
                         onClick={() => setFormData({ ...formData, businessType: type.id })}
                         className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all ${
                           formData.businessType === type.id 
-                            ? 'bg-primary-500 border-primary-500 text-white shadow-lg' 
-                            : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-400 dark:text-slate-500'
+                            ? 'bg-primary-600 border-primary-600 text-white shadow-xl shadow-primary-500/20' 
+                            : 'bg-slate-900/5 dark:bg-white/5 border-transparent text-slate-500 hover:bg-slate-900/10 dark:hover:bg-white/10'
                         }`}
                       >
                         <type.icon size={20} />
@@ -128,7 +128,7 @@ const AddCustomer = () => {
                    <input 
                      type="number"
                      required
-                     className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 px-6 py-4 rounded-2xl focus:ring-2 focus:ring-primary-500 outline-none text-slate-900 dark:text-white font-bold transition-all"
+                     className="w-full bg-slate-900/5 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-6 py-4 rounded-2xl focus:ring-4 focus:ring-primary-500/10 outline-none text-slate-900 dark:text-white font-bold transition-all placeholder:text-slate-400"
                      placeholder="e.g. 50,00,000"
                      value={formData.turnover}
                      onChange={(e) => setFormData({ ...formData, turnover: e.target.value })}
@@ -144,7 +144,7 @@ const AddCustomer = () => {
                 <input 
                   type="number"
                   required
-                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 pl-14 pr-6 py-4 rounded-2xl focus:ring-2 focus:ring-primary-500 outline-none text-slate-900 dark:text-white font-bold transition-all"
+                  className="w-full bg-slate-900/5 dark:bg-white/5 border border-slate-200 dark:border-white/10 pl-14 pr-6 py-4 rounded-2xl focus:ring-4 focus:ring-primary-500/10 outline-none text-slate-900 dark:text-white font-bold transition-all placeholder:text-slate-400"
                   placeholder="25,00,000"
                   value={formData.loanAmount}
                   onChange={(e) => setFormData({ ...formData, loanAmount: e.target.value })}
@@ -156,7 +156,7 @@ const AddCustomer = () => {
              <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Additional Intelligence</label>
              <textarea 
                rows="4"
-               className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 px-6 py-4 rounded-2xl focus:ring-2 focus:ring-primary-500 outline-none text-slate-900 dark:text-white font-bold transition-all resize-none"
+               className="w-full bg-slate-900/5 dark:bg-white/5 border border-slate-200 dark:border-white/10 px-6 py-4 rounded-2xl focus:ring-4 focus:ring-primary-500/10 outline-none text-slate-900 dark:text-white font-bold transition-all resize-none placeholder:text-slate-400"
                placeholder="Capture specific business nuances or customer preferences..."
                value={formData.notes}
                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}

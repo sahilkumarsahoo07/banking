@@ -54,19 +54,18 @@ body {
 
 /* Deep Glassmorphism Design System */
 @utility glass {
-  background-color: rgba(255, 255, 255, 0.5);
-  -webkit-backdrop-filter: blur(24px);
-  backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+  background-color: rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.03), 0 2px 8px -1px rgba(0, 0, 0, 0.02);
   @apply transition-all duration-500;
 }
 
 .dark .glass {
-  background-color: rgba(15, 23, 42, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  -webkit-backdrop-filter: blur(24px);
-  backdrop-filter: blur(24px);
+  background-color: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
 }
 
 @utility glass-pill {
@@ -88,25 +87,25 @@ body {
   @apply bg-purple-500/10 text-purple-500 shadow-[0_0_20px_-5px_#a855f7];
 }
 
-/* Mesh Background for reflectivity depth */
+/* Mesh Background - Simplified for high performance and legibility */
 .mesh-bg {
-  background-color: #f8fafc;
+  background-color: #ffffff;
   background-image: 
-    radial-gradient(at 0% 0%, hsla(210,100%,98%,1) 0, transparent 50%), 
-    radial-gradient(at 100% 0%, hsla(202,100%,94%,1) 0, transparent 50%),
-    radial-gradient(at 100% 100%, hsla(202,100%,94%,1) 0, transparent 50%);
+    radial-gradient(at 0% 0%, hsla(210,100%,99%,1) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, hsla(202,100%,98%,1) 0, transparent 50%),
+    radial-gradient(at 50% 100%, hsla(202,100%,97%,1) 0, transparent 50%);
 }
 
 .dark .mesh-bg {
   background-color: #020617;
   background-image: 
-    radial-gradient(at 0% 0%, hsla(220,100%,10%,1) 0, transparent 50%), 
-    radial-gradient(at 100% 0%, hsla(250,100%,5%,1) 0, transparent 50%),
-    radial-gradient(at 100% 100%, hsla(250,100%,5%,1) 0, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.05) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.05) 0, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(2, 6, 23, 1) 0, transparent 50%);
 }
 
 @utility bounce-hover {
-  @apply transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:shadow-2xl hover:shadow-primary-500/5;
+  @apply transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] hover:shadow-xl hover:shadow-primary-500/5;
 }
 
 /* Custom Scrollbar */
